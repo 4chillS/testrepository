@@ -1,0 +1,500 @@
+
+Git — это система контроля версий, которая позволяет отслеживать изменения в коде или других файлах и управлять версиями этих файлов. Он используется для того, чтобы несколько человек могли работать над проектом одновременно, не опасаясь потерять данные или создать конфликты в коде.
+
+Основные функции Git:
+
+1. **Отслеживание изменений:** Git сохраняет каждое изменение, сделанное в проекте, и позволяет вернуться к любой предыдущей версии файлов.
+    
+2. **Совместная работа:** несколько разработчиков могут работать над проектом одновременно, синхронизируя свои изменения через репозитории.
+    
+3. **Резервное копирование:** Git предоставляет возможность хранить код в облачных сервисах, таких как GitHub или GitLab, и восстанавливать его в случае потери данных.
+    
+4. **Ветвление и слияние:** позволяет создавать ветки для работы над отдельными фичами или исправлениями и затем сливать их с основной версией кода.
+    
+
+Git помогает избежать ошибок, связанных с перезаписью данных, и улучшает организацию работы над проектами, особенно если команды большие.
+
+К примеру в Remote Repository есть уже ПРОЕКТ с внесенными изменениями :
+
+```
+MyProject <-- Version_1.0
+          <-- Version_1.1
+          <-- Version_1.2
+```
+И теперь когда кому-то нужно начать работать с этим проектом, он делает клон, к себе на ПК, и со всеми этими версиями переносятся файлы.
+==ОТМЕЧУ!!! В НОВЫЕ ВЕРСИИ ПОПАДАЮТ ТОЛЬКО ИЗМЕНЕНИЯ==
+Если вдруг кто-то добавил версию, а ты работаешь только с 3-мя, то делаем ***git PULL***, что бы обновить свой локальный репозиторий.
+
+---
+
+*git config --global user.name "chill"* -  все действия будут логироваться и показывать кто что делал.
+
+*git config --global user.email "barsuk596@mail.ru"* - указывает mail - просто для записи, отправляться ничего не будет.
+
+```
+root@chill:/# git config -l
+user.email=barsuk596@mail.ru
+user.user=chill
+```
+Покажет созданное.
+
+Сохраняется в файле информация .gitconfig в домашней директории.
+
+---
+
+# Работа с Local Repository
+
+
+*mkdir myproject* - создаем директорию проекта.
+
+git init . - то есть что бы GIT начал отслеживать файлы, прописываем данную команду, "." - указывает что создаем в директории которой находимся.
+
+```
+root@chill:/myproject# git init .
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint:   git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint:   git branch -m <name>
+Initialized empty Git repository in /myproject/.git/
+root@chill:/myproject# ls -la
+total 12
+drwxr-xr-x  3 root root 4096 Jan 31 11:17 .
+drwxr-xr-x 24 root root 4096 Jan 31 11:15 ..
+drwxr-xr-x  7 root root 4096 Jan 31 11:17 .git
+
+```
+.git - база данных GIT, тут будут сохраняться всякие изменения и т.п.
+
+
+```
+root@chill:/myproject/.git# git status
+fatal: this operation must be run in a work tree
+```
+Сообщение о том, что все операции должны быть выполнены в рабочем дереве GIT
+
+
+```
+root@chill:/myproject/.git# git status
+fatal: this operation must be run in a work tree
+root@chill:/myproject/.git# cd ..
+root@chill:/myproject# git status
+On branch master
+
+No commits yet
+
+nothing to commit (create/copy files and use "git add" to track)
+```
+Предоставляет информацию, что сейчас происходит.
+
+
+```
+root@chill:/myproject# echo "File1" > file.txt
+```
+Создали файл, и если теперь выполним команду git status :
+```
+root@chill:/myproject# git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        file.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+видим новый у нас файл, который не отслеживается, для отслеживания нужно ввести ***git add***
+GIT сообщил, что видит новый файл, файл будет гореть КРАСНЫМ
+
+
+```
+git add *
+```
+Теперь все файлы добавлены, так скажем во второй ШАГ (индексом называется)
+Файлы которые мы подготавливаем для commit, для сохранения в репозитории.
+Состояние индекса можно посмотреть командой : ***git status***
+```
+root@chill:/myproject# git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   file.txt
+
+```
+Теперь файл стал ЗЕЛЕНЫМ.
+
+
+Создадим снимок нашей директории:
+```
+root@chill:/myproject# git commit -m "Version1.0"
+[master (root-commit) 546939d] Version1.0
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file.txt
+```
+-m ключ - указывает наименование коммита.
+Теперь два файла стали снимком.
+И если сейчас сделать ***git status*** :
+```
+root@chill:/myproject# git status
+On branch master
+nothing to commit, working tree clean
+```
+Рабочее дерево будет чистым, никаких измененных или новых файлов нет
+
+
+Добавим еще один файл новый и добавим в ИНДЕКС :
+
+```
+root@chill:/myproject# git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   file2.txt
+
+
+```
+После мы его изменим его :
+
+```
+root@chill:/myproject# git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   file2.txt
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   file2.txt
+```
+
+Нам сообщается, что произошли изменения в файле.
+Добавляем снова в ИНДЕКС
+И делаем COMMIT
+```
+root@chill:/myproject# git commit -m "Version2.0, add file2"
+[master e2cc477] Version2.0, add file2
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file2.txt
+```
+
+Git Commit — это команда в системе контроля версий Git, которая фиксирует изменения в репозитории. Когда пользователь использует ее, создается «снимок» (коммит) текущего состояния проекта, включая все внесенные изменения. Каждое такое сохранение имеет уникальный идентификатор, который позволяет отслеживать историю изменений в проекте. Коммиты в Git дают возможность откатить проект к предыдущим версиям, сравнивать изменения, объединять ветки и выполнять другие операции управления исходным кодом.
+
+
+Что бы посмотреть историю всех комитов, вводим :
+
+```
+root@chill:/myproject# git log
+commit e2cc477a9760486f640a121cd01afb0080aedf76 (HEAD -> master)
+Author: root <barsuk596@mail.ru>
+Date:   Fri Jan 31 11:44:53 2025 +0000
+
+    Version2.0, add file2
+
+commit 546939d49b2226e12f2403317cc937070042c6a0
+Author: root <barsuk596@mail.ru>
+Date:   Fri Jan 31 11:36:25 2025 +0000
+
+    Version1.0
+
+```
+
+Показать более подробный лог и последним комитом :
+
+```
+root@chill:/myproject# git log -1 -p
+commit e2cc477a9760486f640a121cd01afb0080aedf76 (HEAD -> master)
+Author: root <barsuk596@mail.ru>
+Date:   Fri Jan 31 11:44:53 2025 +0000
+
+    Version2.0, add file2
+
+diff --git a/file2.txt b/file2.txt
+new file mode 100644
+index 0000000..a12a3ee
+--- /dev/null
++++ b/file2.txt
+@@ -0,0 +1 @@
++File2 ii
+
+```
+
+Если в файле который редактировали, что-то не так прописали, можем вернуть все в исходное :
+
+```
+root@chill:/myproject# git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   file2.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+
+root@chill:/myproject# git restore file2.txt
+root@chill:/myproject# git status
+On branch master
+nothing to commit, working tree clean
+
+```
+git restore "имя файла" вернуло как было ранее.
+
+Так же можно вернуть :
+```
+root@chill:/myproject# git checkout -- file2.txt
+root@chill:/myproject# git status
+On branch master
+nothing to commit, working tree clean
+root@chill:/myproject#
+```
+
+
+Перед комитом можно прописать :
+```
+git diff --staged
+```
+Он покажет что будет изменено в файле в локал. директории перед комитом.
+
+
+Если мы хотим, что GIT игнорировал какие-то файлы или директории с логами к примеру
+В таком случае создаем файл ==.gitignore== и вносим в него файлы, которые нужно не показывать в статусе.
+
+
+### Работа с GITHUB
+
+Чтобы проект скопировать с GITHUB, клонируем его, берем ссылку https или ssh, и прописываем на локальном ПК :
+
+![[Pasted image 20250202015357.png]]
+
+SSH сразу ключ ставим публичный в GITHUB и клонируем, что бы каждый раз не вносить лог + пасс
+```
+root@chill:/myproject# git clone git@github.com:4chillS/testrepository.git
+
+Cloning into 'testrepository'...
+The authenticity of host 'github.com (140.82.121.3)' can't be established.
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+Receiving objects: 100% (3/3), done.
+```
+
+То есть скопировал файл README и дирой 'testrepository'
+
+```
+root@chill:/myproject# ls
+file2.txt  file.txt  testrepository
+root@chill:/myproject# cd testrepository/
+root@chill:/myproject/testrepository# ls
+README.md
+root@chill:/myproject/testrepository#
+```
+
+Создадим файл в 'testrepository' и запушим в GITHUB
+
+```
+root@chill:/myproject/testrepository# echo "6PATUK" > file.txt
+
+root@chill:/myproject/testrepository# git add .
+
+root@chill:/myproject/testrepository# git commit -m "6patuk_vers.1"
+[main 52b5583] 6patuk_vers.1
+ 1 file changed, 1 insertion(+)
+ create mode 100644 file.txt
+ 
+root@chill:/myproject/testrepository# git remote -v
+origin  git@github.com:4chillS/testrepository.git (fetch)
+origin  git@github.com:4chillS/testrepository.git (push)
+
+root@chill:/myproject/testrepository# git push origin
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 277 bytes | 277.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:4chillS/testrepository.git
+   8d6a938..52b5583  main -> main
+
+```
+
+
+### Создание и работа с ветвлениями - BRANCH
+
+Есть правило, что комиты не делаются в мастер ветку. (обычно только если самая первая версия делается)
+Делаются только merge(слияние) в мастер ветку
+
+Создадим новую диру, которую будет отслеживать GIT:
+
+```
+git init myapp
+```
+
+Показать ветки :
+
+```
+git branch
+```
+на данный момент ничего не покажет, так как не было комитов.
+
+
+После того как мы сделали комит, показывает ветку master:
+```
+root@chill:/myapp# echo "Vers1" > test.txt
+
+root@chill:/myapp# git add .
+
+root@chill:/myapp# git commit -m "vers1"
+[master (root-commit) aa639bf] vers1
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+ 
+root@chill:/myapp# git branch
+* master
+```
+
+После чего мы изменили еще два раза файл, добавив в него строки:
+
+```
+root@chill:/myapp# git log -p
+commit d915cc21498e972c857e4756de8e1983b92de703 (HEAD -> master)
+Author: root <barsuk596@mail.ru>
+Date:   Sun Feb 2 09:34:32 2025 +0000
+
+    vers3
+
+diff --git a/test.txt b/test.txt
+index d64bad3..43ced93 100644
+--- a/test.txt
++++ b/test.txt
+@@ -1,2 +1,3 @@
+ Vers1
+ vers2
++vers3
+
+commit a7f76e09425aeda41b17287a2bbe576e9a49db8d
+Author: root <barsuk596@mail.ru>
+Date:   Sun Feb 2 09:34:03 2025 +0000
+
+    vers2
+
+diff --git a/test.txt b/test.txt
+index 91d832a..d64bad3 100644
+--- a/test.txt
++++ b/test.txt
+@@ -1 +1,2 @@
+ Vers1
++vers2
+
+commit aa639bf6f43daa8b42f083ebc39232d000dc190d
+Author: root <barsuk596@mail.ru>
+Date:   Sun Feb 2 09:30:51 2025 +0000
+
+    vers1
+
+diff --git a/test.txt b/test.txt
+new file mode 100644
+index 0000000..91d832a
+--- /dev/null
++++ b/test.txt
+@@ -0,0 +1 @@
++Vers1
+
+```
+
+Теперь создадим новую ветку, где производим фикс ошибки и перейдём на эту ветку.
+
+```
+root@chill:/myapp# git checkout -b fix_error
+Switched to branch 'fix_error'
+
+root@chill:/myapp# git branch
+* fix_error
+  master
+
+```
+
+
+
+Мы находимся в ветке fix_error, делаем исправление и потом слияние.
+
+```
+root@chill:/myapp# git branch
+* fix_error
+  master
+* 
+root@chill:/myapp# echo "vers4" >> test.txt
+
+root@chill:/myapp# git add .
+
+root@chill:/myapp# git commit -m "vers4"
+[fix_error 4249419] vers4
+ 1 file changed, 1 insertion(+)
+```
+
+```
+root@chill:/myapp# git log -1 -p
+commit 4249419128c167cb60c425531c5bb36852c3c17b (HEAD -> fix_error)
+Author: root <barsuk596@mail.ru>
+Date:   Sun Feb 2 09:42:37 2025 +0000
+
+    vers4
+
+diff --git a/test.txt b/test.txt
+index 43ced93..6f770eb 100644
+--- a/test.txt
++++ b/test.txt
+@@ -1,3 +1,4 @@
+ Vers1
+ vers2
+ vers3
++vers4
+```
+
+Если мы перейдем сейчас на ветку мастера, то мы не увидим изменения :
+
+```
+root@chill:/myapp# git checkout master
+Switched to branch 'master'
+root@chill:/myapp# git branch
+  fix_error
+* master
+root@chill:/myapp# cat test.txt
+Vers1
+vers2
+vers3
+```
+
+Теперь из ветки master делаем слияние:
+```
+root@chill:/myapp# git merge fix_error
+Updating d915cc2..4249419
+Fast-forward
+ test.txt | 1 +
+ 1 file changed, 1 insertion(+)
+```
+
+После слияния удаляем не нужную ветку fix_error:
+
+```
+git branch -d имя_ветки
+```
+
+Если нужно удалить ветку, с фиксом но без слияния :
+
+```
+git branch -D имя_ветки
+```
